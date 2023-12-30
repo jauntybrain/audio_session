@@ -294,9 +294,13 @@ class AudioSession {
     return true;
   }
 
-  Future<void> overrideOutputAudioPort(AVAudioSessionPortOverride port) async {
-    if (Platform.isIOS && _avAudioSession != null) {
-      await _avAudioSession?.overrideOutputAudioPort(port);
+  Future<void> enableSpeaker(bool enable) async {
+    if (Platform.isIOS) {
+      await _avAudioSession?.overrideOutputAudioPort(enable
+          ? AVAudioSessionPortOverride.speaker
+          : AVAudioSessionPortOverride.none);
+    } else if (Platform.isAndroid) {
+      _androidAudioManager?.setSpeakerphoneOn(enable);
     }
   }
 
