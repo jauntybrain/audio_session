@@ -300,6 +300,7 @@ class AudioSession {
           ? AVAudioSessionPortOverride.speaker
           : AVAudioSessionPortOverride.none);
     } else if (Platform.isAndroid) {
+      _androidAudioManager?.setMode(AndroidAudioHardwareMode.inCommunication);
       _androidAudioManager?.setSpeakerphoneOn(enable);
     }
   }
