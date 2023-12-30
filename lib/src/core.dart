@@ -294,6 +294,12 @@ class AudioSession {
     return true;
   }
 
+  Future<void> overrideOutputAudioPort(AVAudioSessionPortOverride port) async {
+    if (Platform.isIOS && _avAudioSession != null) {
+      await _avAudioSession?.overrideOutputAudioPort(port);
+    }
+  }
+
   /// Completes with a list of available audio devices.
   Future<Set<AudioDevice>> getDevices(
       {bool includeInputs = true, bool includeOutputs = true}) async {
