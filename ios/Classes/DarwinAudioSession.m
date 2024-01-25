@@ -76,6 +76,10 @@ static NSHashTable<DarwinAudioSession *> *sessions = nil;
         [self getPromptStyle:args result:result];
     } else if ([@"overrideOutputAudioPort" isEqualToString:call.method]) {
         [self overrideOutputAudioPort:args result:result];
+    } else if ([@"setOutputDataSource" isEqualToString:call.method]) {
+        [self setOutputDataSource:args result:result];
+    } else if ([@"getPreferredInput" isEqualToString:call.method]) {
+        [self getPreferredInput:args result:result];
     } else if ([@"setPreferredInput" isEqualToString:call.method]) {
         [self setPreferredInput:args result:result];
     } else if ([@"getCurrentRoute" isEqualToString:call.method]) {
@@ -302,6 +306,16 @@ static NSHashTable<DarwinAudioSession *> *sessions = nil;
     return nil;
 }
 
+- (AVAudioSessionPortDescription *)decodePortWithUid:(NSString *)portUid {
+    NSArray<AVAudioSessionPortDescription *> *availableInputs = [[AVAudioSession sharedInstance] availableInputs];
+    for (int i = 0; i < availableInputs.count; i++) {
+        if ([availableInputs[i].UID isEqualToString:portUid]) {
+            return availableInputs[i];
+        }
+    }
+    return nil;
+}
+
 - (NSMutableArray *)encodeChannels:(NSArray<AVAudioSessionChannelDescription *> *)channels {
     if (!channels) return (id)[NSNull null];
     NSMutableArray *array = [NSMutableArray new];
@@ -418,6 +432,16 @@ static NSHashTable<DarwinAudioSession *> *sessions = nil;
     return map[portType] ? map[portType] : (id)[NSNull null];
 }
 
+- (void)setOutputDataSource:(NSArray *)args result:(FlutterResult)result {
+    NSError *error = nil;
+    [[AVAudioSession sharedInstance] setOutputDataSource:[self decodePort:args[0]] error:&error];
+    if (error) {
+        [self sendError:error result:result];
+    } else {
+        result(nil);
+    }
+}
+
 - (void)overrideOutputAudioPort:(NSArray *)args result:(FlutterResult)result {
     NSError *error = nil;
     [[AVAudioSession sharedInstance] overrideOutputAudioPort:[self decodePortOverride:args[0]] error:&error];
@@ -428,9 +452,20 @@ static NSHashTable<DarwinAudioSession *> *sessions = nil;
     }
 }
 
+
+- (void)getPreferredInput:(NSArray *)args result:(FlutterResult)result {
+    NSError *error = nil;
+    [[AVAudioSession sharedInstance] setPreferredInput:[self decodePortWithUid:args[0]] error:&error];
+    if (error) {
+        [self sendError:error result:result];
+    } else {
+        result(nil);
+    }
+}
+
 - (void)setPreferredInput:(NSArray *)args result:(FlutterResult)result {
     NSError *error = nil;
-    [[AVAudioSession sharedInstance] setPreferredInput:[self decodePort:args[0]] error:&error];
+    [[AVAudioSession sharedInstance] setPreferredInput:[self decodePortWithUid:args[0]] error:&error];
     if (error) {
         [self sendError:error result:result];
     } else {

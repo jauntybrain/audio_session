@@ -201,13 +201,17 @@ class AVAudioSession {
         .toSet();
   }
 
-  //Future<AVAudioSessionPortDescription> get preferredInput {
-  //  return null;
-  //}
+  Future<AVAudioSessionPortDescription?> get preferredInput async {
+    final raw = await _channel.invokeMethod<dynamic>('getPerferredInput');
+    return raw == null
+        ? null
+        : AVAudioSessionPortDescription._fromMap(
+            _channel, (raw as Map<dynamic, dynamic>).cast<String, dynamic>());
+  }
 
   /// (UNTESTED)
-  Future<void> setPreferredInput(AVAudioSessionPortDescription input) =>
-      _channel.invokeMethod('setPreferredInput', [input._toMap()]);
+  Future<void> setPreferredInput(String uid) =>
+      _channel.invokeMethod('setPreferredInput', [uid]);
 
   //Future<AVAudioSessionDataSourceDescription> get inputDataSource async {
   //  return null;
@@ -229,8 +233,10 @@ class AVAudioSession {
   //  return null;
   //}
 
-  //Future<void> setOutputDataSource(
-  //    AVAudioSessionDataSourceDescription output) async {}
+  Future<void> setOutputDataSource(
+      AVAudioSessionDataSourceDescription output) async {
+    _channel.invokeMethod('setOutputDataSource', [output.id]);
+  }
 
   /// (UNTESTED)
   Future<void> overrideOutputAudioPort(
